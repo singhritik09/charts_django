@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Applications Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-field {
+            margin: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .application-list {
+            margin: 20px auto;
+            width: 50%;
+            list-style-type: none;
+            padding: 0;
+        }
+        .application-list li {
+            background-color: #f2f2f2;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>All Submitted Applications Chart</h1>
+
+    <!-- Date Filter Form -->
+    <form method="GET" action="">
+        <div class="form-field">
+            {{ form.start_date.label_tag }} {{ form.start_date }}
+        </div>
+        <div class="form-field">
+            {{ form.end_date.label_tag }} {{ form.end_date }}
+        </div>
+        <button type="submit">Filter</button>
+    </form>
+
+    <!-- Chart.js Bar Chart -->
+    <h2>Bar Chart of Applications by Type</h2>
+    <canvas id="applicationsChart" width="400" height="200"></canvas>
+    <script>
+        const ctx = document.getElementById('applicationsChart').getContext('2d');
+        const applicationsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ types|safe }},
+                datasets: [{
+                    label: 'Number of Applications',
+                    data: {{ counts|safe }},
+                    backgroundColor: ['red', 'blue', 'green'],
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+
+    <!-- List of Applications -->
+    <h2>List of Applications</h2>
+    <ul class="application-list">
+        {% if applications %}
+            {% for application in applications %}
+                <li>
+                    <strong>{{ application.owner_name }}</strong> <br>
+                    Date of Registration: {{ application.date_of_register }} <br>
+                    Type: {{ application.get_application_type_display }}
+                </li>
+            {% endfor %}
+        {% else %}
+            <li>No applications found for the selected date range.</li>
+        {% endif %}
+    </ul>
+
+    <a href="{% url 'submit_application' %}">Submit a New Application</a>
+</body>
+</html>
